@@ -9,6 +9,7 @@
             "email": "zhusaidong@gmail.com"
         }
     ],
+	"minimum-stability":"stable",
     "require": {
         "workerman/workerman": "^3.5"
     },
@@ -16,5 +17,10 @@
     	"psr-4":{
     		"FTPServer\\":"src/"
     	}
+    },
+	"extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
     }
 }
