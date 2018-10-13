@@ -1,14 +1,14 @@
 # php ftp server
 
-PHP FTP server based on workerman
+基于Workerman开发的FTPServer
 
-[中文文档](README-zh.md)
+[english document](README.md)
 
-### ftp protocol document
+### ftp协议文档
 
-[ftp protocol](http://cr.yp.to/ftp.html)
+[ftp协议](http://cr.yp.to/ftp.html)
 
-### server config
+### 服务器配置
 
 `server.ini`
 
@@ -19,17 +19,17 @@ PHP FTP server based on workerman
 ip=0.0.0.0
 ;port
 port=2323
-;root path
+;根目录
 root_path=data
-;max users
+;最大连接数
 max_users=1
-;allow anonymous
+;是否允许匿名登录
 allow_anonymous=1
-;ftp pasv mode port range
+;被动模式端口范围
 pasv_port_range=50000-60000
 ```
 
-### user config
+### 用户配置
 
 `user.json`
 
@@ -43,11 +43,7 @@ pasv_port_range=50000-60000
 }
 ```
 
-### usage
-
-```
-composer require zhusaidong/ftp-server:dev-master
-```
+### demo
 
 ```php
 require_once('./vendor/autoload.php');
@@ -60,4 +56,13 @@ $fs->run();
 
 ### TODO
 
-- [ ] support sftp
+#### v0.1
+
+- [x] 根目录编码兼容性测试
+- [x] 测试兼容性-在linux环境执行
+- [x] 整理代码
+- [ ] 增加`Exception`
+
+#### v1
+
+- [ ] sftp支持
