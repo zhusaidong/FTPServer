@@ -50,12 +50,17 @@ composer require zhusaidong/ftp-server:dev-master
 ```
 
 ```php
+//ftp.php
 require_once('./vendor/autoload.php');
 
 use FTPServer\FTPServer;
 
 $fs = new FTPServer();
 $fs->run();
+```
+
+```
+php ftp.php
 ```
 
 ### TODO

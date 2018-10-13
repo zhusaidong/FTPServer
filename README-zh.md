@@ -43,9 +43,14 @@ pasv_port_range=50000-60000
 }
 ```
 
-### demo
+### 用法
+
+```
+composer require zhusaidong/ftp-server:dev-master
+```
 
 ```php
+//ftp.php
 require_once('./vendor/autoload.php');
 
 use FTPServer\FTPServer;
@@ -54,15 +59,10 @@ $fs = new FTPServer();
 $fs->run();
 ```
 
+```
+php ftp.php
+```
+
 ### TODO
 
-#### v0.1
-
-- [x] 根目录编码兼容性测试
-- [x] 测试兼容性-在linux环境执行
-- [x] 整理代码
-- [ ] 增加`Exception`
-
-#### v1
-
-- [ ] sftp支持
+- [ ] support sftp
