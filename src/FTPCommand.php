@@ -208,7 +208,7 @@ class FTPCommand
 	{
 		if($args == 'anonymous' or $args == '')
 		{
-			if($this->serverConfig->getConfig('anonymous.enable',false))
+			if($this->serverConfig->getConfig('server.allow_anonymous',false))
 			{
 				$root = $this->serverConfig->getConfig('server.root_path','/');
 				
