@@ -127,14 +127,14 @@ class FTPCommand
 			switch($format)
 			{
 				case '-l':
-					//不带.的文件
+					//remove dot file
 					if(substr($name,0,1) == '.')
 					{
 						break 2;
 					}
 					
 					$year = date('Y',$time);
-					//六个月内修改的文件显示时分秒
+					//< 6 month, show 'hms'
 					if(time() - $time <= 6 * 30 * 86400)
 					{
 						$year = date('H:i',$time);
@@ -153,7 +153,7 @@ class FTPCommand
 					break;
 				case '-al':
 					$year = date('Y',$time);
-					//六个月内修改的文件显示时分秒
+					//< 6 month, show 'hms'
 					if(time() - $time <= 6 * 30 * 86400)
 					{
 						$year = date('H:i',$time);
@@ -171,12 +171,6 @@ class FTPCommand
 					];
 					break;
 				case 'nlst':
-					$year = date('Y',$time);
-					//六个月内修改的文件显示时分秒
-					if(time() - $time <= 6 * 30 * 86400)
-					{
-						$year = date('H:i',$time);
-					}
 					$ls = [
 						$name,
 					];
@@ -332,9 +326,12 @@ class FTPCommand
 			return new Output(502,'unable to connect client!');
 		}
 	}
+	
 	/**
-	* pasv mode
-	*/
+	 * pasv mode
+	 *
+	 * @throws \Exception
+	 */
 	private function _pasv($connection,$args)
 	{
 		$ip = $this->serverConfig->getConfig('server.ip','localhost');
@@ -597,14 +594,6 @@ class FTPCommand
 	*/
 	private function _type($connection,$args)
 	{
-		/*
-		选择传输类型
-			A为文本模式
-			I为二进制模式
-			E为EBCDIC
-			N为Nonprint非打印模式
-			T为Telnet格式控制符
-		*/
 		if($args == "I")
 		{
 			$connection->user->isBinary = TRUE;

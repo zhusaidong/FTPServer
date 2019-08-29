@@ -11,8 +11,12 @@
     ],
 	"minimum-stability":"stable",
     "require": {
-        "workerman/workerman": "^3.5"
-    },
+        "workerman/workerman": "^3.5",
+		"ext-json"           :"*",
+		"ext-mbstring"       :"*",
+		"ext-posix"          :"*",
+		"ext-csprng"         :"*"
+	},
     "autoload":{
     	"psr-4":{
     		"FTPServer\\":"src/"
