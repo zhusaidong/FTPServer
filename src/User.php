@@ -1,27 +1,28 @@
 <?php
 /**
-* User Object
-* @author zhusaidong <zhusaidong@gmail.com>
-*/
+ * User Object
+ *
+ * @author zhusaidong <zhusaidong@gmail.com>
+ */
 namespace FTPServer;
 
 class User
 {
 	/**
-	* @var string $username username
-	*/
+	 * @var string $username username
+	 */
 	public $username = NULL;
 	/**
-	* @var string $password password
-	*/
+	 * @var string $password password
+	 */
 	public $password = NULL;
 	/**
-	* @var string $path relative path
-	*/
+	 * @var string $path relative path
+	 */
 	public $path = '';
 	/**
-	* @var string $root root path
-	*/
+	 * @var string $root root path
+	 */
 	public $root = '';
 	/**
 	 * @var bool $status user status
@@ -29,10 +30,10 @@ class User
 	public $status = TRUE;
 	
 	/**
-	* __construct
-	* 
-	* @param array $user user
-	*/
+	 * __construct
+	 *
+	 * @param array $user user
+	 */
 	public function __construct($user)
 	{
 		foreach($user as $key => $value)
@@ -40,72 +41,92 @@ class User
 			$this->{$key} = $value;
 		}
 	}
+	
 	/**
-	* set relative path
-	* 
-	* @param string $path relative path
-	*/
+	 * set relative path
+	 *
+	 * @param string $path relative path
+	 */
 	public function setPath($path)
 	{
-		$path = str_replace('\\','/',$path);
-		if(substr($path,0,1) != '/')
+		$path = str_replace('\\', '/', $path);
+		if(substr($path, 0, 1) != '/')
 		{
-			$path = '/'.$path;
+			$path = '/' . $path;
 		}
-		if(substr($path,-1) == '/')
+		if(substr($path, -1) == '/')
 		{
-			$path = substr($path,0,strlen($path) - 1);
+			$path = substr($path, 0, strlen($path) - 1);
 		}
 		$this->path = $path;
 	}
+	
 	/**
-	* set root path
-	* 
-	* @param string $root set root path
-	*/
+	 * set root path
+	 *
+	 * @param string $root set root path
+	 */
 	public function setRoot($root)
 	{
-		if(substr($root,-1) == '/')
+		if(substr($root, -1) == '/')
 		{
-			$root = substr($root,0,strlen($root) - 1);
+			$root = substr($root, 0, strlen($root) - 1);
 		}
 		$this->root = $root;
 	}
+	
 	/**
-	* get root path
-	*/
+	 * get root path
+	 *
+	 * @param string $path
+	 *
+	 * @return string
+	 */
 	public function getRoot($path = '')
 	{
-		if($path != '' and substr($path,0,1) != '/')
+		if($path != '' and substr($path, 0, 1) != '/')
 		{
-			$path = '/'.$path;
+			$path = '/' . $path;
 		}
-		return $this->root.$path;
+		
+		return $this->root . $path;
 	}
+	
 	/**
-	* get relative path
-	*/
+	 * get relative path
+	 *
+	 * @param string $path
+	 *
+	 * @return string
+	 */
 	public function getPath($path = '')
 	{
-		if($path != '' and substr($path,0,1) != '/')
+		if($path != '' and substr($path, 0, 1) != '/')
 		{
-			$path = '/'.$path;
+			$path = '/' . $path;
 		}
-		return ($this->path.$path)?:'/';
+		
+		return ($this->path . $path) ? : '/';
 	}
+	
 	/**
-	* get absolute path
-	*/
+	 * get absolute path
+	 *
+	 * @param string $path
+	 *
+	 * @return string
+	 */
 	public function getRootPath($path = '')
 	{
-		if($path != '' and substr($path,0,1) != '/')
+		if($path != '' and substr($path, 0, 1) != '/')
 		{
-			$path = '/'.$path;
+			$path = '/' . $path;
 		}
 		if($this->path == '/')
 		{
 			$this->path = '';
 		}
-		return $this->root.$this->path.$path;
+		
+		return $this->root . $this->path . $path;
 	}
 }
