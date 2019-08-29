@@ -39,7 +39,7 @@ pasv_port_range=50000-60000
 		"username": "test",
 		"password": "123",
 		"path": "/",
-		"status": 1
+		"status": true
 	}
 }
 ```

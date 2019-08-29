@@ -1,7 +1,7 @@
 <?php
 /**
 * User Object
-* @author zhusaidong [zhusaidong@gmail.com]
+* @author zhusaidong <zhusaidong@gmail.com>
 */
 namespace FTPServer;
 
@@ -23,6 +23,10 @@ class User
 	* @var string $root root path
 	*/
 	public $root = '';
+	/**
+	 * @var bool $status user status
+	 */
+	public $status = TRUE;
 	
 	/**
 	* __construct
