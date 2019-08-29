@@ -35,11 +35,12 @@ pasv_port_range=50000-60000
 
 ```json
 {
-    "test": {
-        "username": "test",
-        "password": "123",
-        "path": "/"
-    },
+	"test": {
+		"username": "test",
+		"password": "123",
+		"path": "/",
+		"status": 1
+	}
 }
 ```
 
