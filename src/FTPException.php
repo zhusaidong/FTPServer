@@ -2,7 +2,7 @@
 /**
 * TODO FTP Exception
 * 
-* @author zhusaidong [zhusaidong@gmail.com]
+* @author zhusaidong <zhusaidong@gmail.com>
 */
 namespace FTPServer;
 

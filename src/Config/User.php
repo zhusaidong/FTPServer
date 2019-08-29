@@ -2,7 +2,7 @@
 /**
 * User Config
 * 
-* @author zhusaidong [zhusaidong@gmail.com]
+* @author zhusaidong <zhusaidong@gmail.com>
 */
 namespace FTPServer\Config;
 

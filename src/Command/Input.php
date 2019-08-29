@@ -2,7 +2,7 @@
 /**
 * FTP Input
 * 
-* @author zhusaidong [zhusaidong@gmail.com]
+* @author zhusaidong <zhusaidong@gmail.com>
 */
 namespace FTPServer\Command;
 

@@ -2,7 +2,7 @@
 /**
 * FTP Protocol
 *
-* @author zhusaidong [zhusaidong@gmail.com]
+* @author zhusaidong <zhusaidong@gmail.com>
 */
 namespace Protocols;
 
