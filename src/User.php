@@ -11,11 +11,11 @@ class User
 	/**
 	 * @var string $username username
 	 */
-	public $username = NULL;
+	public $username;
 	/**
 	 * @var string $password password
 	 */
-	public $password = NULL;
+	public $password;
 	/**
 	 * @var string $path relative path
 	 */
@@ -27,7 +27,7 @@ class User
 	/**
 	 * @var bool $status user status
 	 */
-	public $status = TRUE;
+	public $status = true;
 	
 	/**
 	 * __construct
@@ -50,13 +50,13 @@ class User
 	public function setPath($path)
 	{
 		$path = str_replace('\\', '/', $path);
-		if(substr($path, 0, 1) != '/')
+		if($path[0] !== '/')
 		{
 			$path = '/' . $path;
 		}
-		if(substr($path, -1) == '/')
+		if(substr($path, -1) === '/')
 		{
-			$path = substr($path, 0, strlen($path) - 1);
+			$path = substr($path, 0, -1);
 		}
 		$this->path = $path;
 	}
@@ -68,9 +68,9 @@ class User
 	 */
 	public function setRoot($root)
 	{
-		if(substr($root, -1) == '/')
+		if(substr($root, -1) === '/')
 		{
-			$root = substr($root, 0, strlen($root) - 1);
+			$root = substr($root, 0, -1);
 		}
 		$this->root = $root;
 	}
@@ -84,7 +84,7 @@ class User
 	 */
 	public function getRoot($path = '')
 	{
-		if($path != '' and substr($path, 0, 1) != '/')
+		if($path !== '' && $path[0] !== '/')
 		{
 			$path = '/' . $path;
 		}
@@ -101,7 +101,7 @@ class User
 	 */
 	public function getPath($path = '')
 	{
-		if($path != '' and substr($path, 0, 1) != '/')
+		if($path !== '' && $path[0] !== '/')
 		{
 			$path = '/' . $path;
 		}
@@ -118,11 +118,11 @@ class User
 	 */
 	public function getRootPath($path = '')
 	{
-		if($path != '' and substr($path, 0, 1) != '/')
+		if($path !== '' && $path[0] !== '/')
 		{
 			$path = '/' . $path;
 		}
-		if($this->path == '/')
+		if($this->path === '/')
 		{
 			$this->path = '';
 		}

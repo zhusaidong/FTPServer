@@ -11,7 +11,7 @@ class Server
 	/**
 	 * @var array $config config
 	 */
-	private $config = [];
+	private $config;
 	
 	/**
 	 * __construct
@@ -35,7 +35,7 @@ class Server
 			return [];
 		}
 		
-		return parse_ini_file($iniFile, TRUE);
+		return parse_ini_file($iniFile, true);
 	}
 	
 	/**
@@ -46,7 +46,7 @@ class Server
 	 *
 	 * @return mixed config
 	 */
-	public function getConfig($key, $default = NULL)
+	public function getConfig($key, $default = null)
 	{
 		$config = $this->config;
 		foreach(explode('.', $key) as $subKey)

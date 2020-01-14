@@ -11,11 +11,11 @@ class Output
 	/**
 	 * @var int $code response code
 	 */
-	private $code = 0;
+	private $code;
 	/**
 	 * @var string $msg response msg
 	 */
-	private $msg = '';
+	private $msg;
 	
 	/**
 	 * __construct

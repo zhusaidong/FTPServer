@@ -16,18 +16,18 @@ class FTPServer
 	/**
 	 * @var boolean $log log
 	 */
-	private $log = FALSE;
+	private $log;
 	/**
 	 * @var mixed $serverConfig server config
 	 */
-	private $serverConfig = NULL;
+	protected $serverConfig;
 	
 	/**
 	 * __construct
 	 *
 	 * @param boolean $log log
 	 */
-	public function __construct($log = FALSE)
+	public function __construct($log = false)
 	{
 		$this->log          = $log;
 		$this->serverConfig = new ServerConfig;
@@ -45,12 +45,12 @@ class FTPServer
 	 * @param mixed   $msg        log msg
 	 * @param boolean $fileAppend log append
 	 */
-	private function log($msg, $fileAppend = TRUE)
+	protected function log($msg, $fileAppend = true)
 	{
 		if($this->log)
 		{
-			is_array($msg) and $msg = var_export($msg, TRUE);
-			$msg = date('Y-m-d H:i:s', time()) . PHP_EOL . $msg . PHP_EOL . PHP_EOL;
+			is_array($msg) and $msg = var_export($msg, true);
+			$msg = date('Y-m-d H:i:s') . PHP_EOL . $msg . PHP_EOL . PHP_EOL;
 			file_put_contents('FTPServer.log', $msg, $fileAppend ? FILE_APPEND : 0);
 		}
 	}
@@ -62,7 +62,7 @@ class FTPServer
 	 */
 	public function createServer()
 	{
-		$this->log('start FTPServer', FALSE);
+		$this->log('start FTPServer', false);
 		
 		$ip        = $this->serverConfig->getConfig('server.ip', 'localhost');
 		$port      = $this->serverConfig->getConfig('server.port', 23);
@@ -83,10 +83,10 @@ class FTPServer
 		$worker     = $this->createServer();
 		$ftpCommand = new FTPCommand;
 		
-		$worker->onConnect = function($connection)
+		$worker->onConnect = static function($connection)
 		{
-			$connection->user = NULL;
-			$connection->send(new Output(220, "wellcome login ftp!"));
+			$connection->user = null;
+			$connection->send(new Output(220, 'welcome login ftp!'));
 		};
 		$worker->onMessage = function($connection, Input $input) use ($ftpCommand)
 		{
@@ -95,7 +95,7 @@ class FTPServer
 			
 			$this->log('message=>' . $input . '=>' . $output);
 		};
-		$worker->onClose   = function($connection)
+		$worker->onClose   = static function($connection)
 		{
 			$connection->send(new Output(426, 'logout'));
 			$connection->close();

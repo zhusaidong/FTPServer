@@ -6,6 +6,7 @@
  */
 namespace FTPServer;
 
+use Exception;
 use FTPServer\Command\Input;
 use FTPServer\Command\Output;
 use FTPServer\Config\Server as ServerConfig;
@@ -18,13 +19,9 @@ use DirectoryIterator;
 class FTPCommand
 {
 	/**
-	 * @var boolean $log log
-	 */
-	private $log = FALSE;
-	/**
 	 * @var mixed $serverConfig server config
 	 */
-	private $serverConfig = NULL;
+	private $serverConfig;
 	
 	/**
 	 * FTPCommand constructor.
@@ -48,14 +45,12 @@ class FTPCommand
 		if(method_exists($this, $method))
 		{
 			$param = $input->getParameter();
-			PHP_OS == 'WINNT' and $param = mb_convert_encoding($param, 'utf-8', 'gb2312');
+			PHP_OS === 'WINNT' and $param = mb_convert_encoding($param, 'utf-8', 'gb2312');
 			
-			return call_user_func_array([$this, $method], [$connection, $param]);
+			return $this->$method($connection, $param);
 		}
-		else
-		{
-			return new Output(502, 'command not support!');
-		}
+		
+		return new Output(502, 'command not support!');
 	}
 	
 	/**
@@ -76,9 +71,10 @@ class FTPCommand
 		{
 			if(!$iterator->isDot())
 			{
-				if(PHP_OS == 'WINNT')
+				if(PHP_OS === 'WINNT')
 				{
-					$groupName = $ownerName = get_current_user();
+					$ownerName = get_current_user();
+					$groupName = $ownerName;
 				}
 				else
 				{
@@ -126,7 +122,7 @@ class FTPCommand
 			{
 				case '-l':
 					//remove dot file
-					if(substr($name, 0, 1) == '.')
+					if(strncmp($name, '.', 1) === 0)
 					{
 						break 2;
 					}
@@ -205,9 +201,9 @@ class FTPCommand
 	 */
 	private function _user($connection, $args)
 	{
-		if($args == 'anonymous' or $args == '')
+		if($args === 'anonymous' || $args === '')
 		{
-			if($this->serverConfig->getConfig('server.allow_anonymous', FALSE))
+			if($this->serverConfig->getConfig('server.allow_anonymous', false))
 			{
 				$root = $this->serverConfig->getConfig('server.root_path', '/');
 				
@@ -223,26 +219,20 @@ class FTPCommand
 				
 				return new Output(230, 'anonymous successfully logged in');
 			}
-			else
-			{
-				return new Output(530, 'server not allow anonymous');
-			}
+			
+			return new Output(530, 'server not allow anonymous');
 		}
-		else
+		
+		$userConfig = new UserConfig;
+		$info       = $userConfig->getInfoByUserName($args);
+		if($info === null || !$info->status)
 		{
-			$userConfig = new UserConfig;
-			$info       = $userConfig->getInfoByUserName($args);
-			if($info == NULL or !$info->status)
-			{
-				return new Output(530, 'login error');
-			}
-			else
-			{
-				$connection->user = $info;
-				
-				return new Output(331, 'passwd required for' . $args);
-			}
+			return new Output(530, 'login error');
 		}
+		
+		$connection->user = $info;
+		
+		return new Output(331, 'password required for' . $args);
 	}
 	
 	/**
@@ -256,26 +246,24 @@ class FTPCommand
 	private function _pass($connection, $args)
 	{
 		$user = $connection->user;
-		if($user == NULL or $user->password != $args)
+		if($user === null || $user->password !== $args)
 		{
 			return new Output(530, 'not logged in, user or password incorrect');
 		}
-		else
+		
+		$root = $this->serverConfig->getConfig('server.root_path', '/');
+		
+		$connection->user->setRoot($root);
+		$connection->user->setRoot($connection->user->getRootPath());
+		$connection->user->setPath('/');
+		
+		if(!file_exists($connection->user->getRootPath()))
 		{
-			$root = $this->serverConfig->getConfig('server.root_path', '/');
-			
-			$connection->user->setRoot($root);
-			$connection->user->setRoot($connection->user->getRootPath());
-			$connection->user->setPath('/');
-			
-			if(!file_exists($connection->user->getRootPath()))
-			{
-				mkdir($connection->user->getRootPath(), 644);
-			}
-			$connection->user->isBinary = FALSE;
-			
-			return new Output(202, 'user successfully logged in');
+			mkdir($connection->user->getRootPath(), 644);
 		}
+		$connection->user->isBinary = false;
+		
+		return new Output(202, 'user successfully logged in');
 	}
 	
 	/**
@@ -293,21 +281,21 @@ class FTPCommand
 		$lists = $this->_dirFormattedList($connection->user->getRootPath(), $args);
 		$msg   = implode(PHP_EOL, $lists) . PHP_EOL;
 		
-		if($connection->user->mode == 'port')
+		if($connection->user->mode === 'port')
 		{
 			$connection->user->port_connection->send($msg);
 			$connection->user->port_connection->close();
-			$connection->user->port_connection = NULL;
+			$connection->user->port_connection = null;
 		}
 		else
 		{
-			if(($pasv_connection = current($connection->user->pasv_worker->connections)) !== FALSE)
+			if(($pasv_connection = current($connection->user->pasv_worker->connections)) !== false)
 			{
 				$pasv_connection->send($msg);
 				$pasv_connection->close();
 			}
 			$connection->user->pasv_worker->unlisten();
-			$connection->user->pasv_worker = NULL;
+			$connection->user->pasv_worker = null;
 		}
 		
 		return new Output(226, 'Transfer complete');
@@ -342,7 +330,7 @@ class FTPCommand
 		
 		$connection->user->mode = 'port';
 		
-		if(($socket = @stream_socket_client("tcp://" . $ip . ':' . $port)) != FALSE)
+		if(($socket = @stream_socket_client('tcp://' . $ip . ':' . $port)) !== false)
 		{
 			$tcpConnection = new TcpConnection($socket);
 			$tcpConnection->connect();
@@ -351,10 +339,8 @@ class FTPCommand
 			
 			return new Output(200, 'PORT command successful.');
 		}
-		else
-		{
-			return new Output(502, 'unable to connect client!');
-		}
+		
+		return new Output(502, 'unable to connect client!');
 	}
 	
 	/**
@@ -364,7 +350,7 @@ class FTPCommand
 	 * @param $args
 	 *
 	 * @return Output
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	private function _pasv($connection, $args)
 	{
@@ -400,15 +386,17 @@ class FTPCommand
 	 */
 	private function _cwd($connection, $args)
 	{
-		if($args == '.')
+		if($args === '.')
 		{
 			return new Output(250, 'CWD command successful.');
 		}
-		elseif($args == '..')
+		
+		if($args === '..')
 		{
 			return $this->_cdup($connection, $args);
 		}
-		elseif(substr($args, 0, 1) == '/')
+		
+		if(strncmp($args, '/', 1) === 0)
 		{
 			$rootPath = $connection->user->getRoot($args);
 			$path     = $args;
@@ -419,16 +407,14 @@ class FTPCommand
 			$path     = $connection->user->getPath($args);
 		}
 		
-		if(!file_exists($rootPath))
-		{
-			return new Output(550, $args . ':No such file or directory.');
-		}
-		else
+		if(file_exists($rootPath))
 		{
 			$connection->user->setPath($path);
 			
 			return new Output(250, 'CWD command successful.');
 		}
+		
+		return new Output(550, $args . ':No such file or directory.');
 	}
 	
 	/**
@@ -500,7 +486,7 @@ class FTPCommand
 		$offset = isset($user->download_size) ? $user->download_size : 0;
 		fseek($handle, $offset);
 		
-		if($user->mode == 'port')
+		if($user->mode === 'port')
 		{
 			$port_connection                    = $user->port_connection;
 			$port_connection->maxSendBufferSize = filesize($path);
@@ -512,7 +498,7 @@ class FTPCommand
 				$port_connection->send($msg);
 			}
 			$port_connection->close();
-			$connection->user->port_connection = NULL;
+			$connection->user->port_connection = null;
 		}
 		else
 		{
@@ -527,7 +513,7 @@ class FTPCommand
 			}
 			$pasv_connection->close();
 			$user->pasv_worker->unlisten();
-			$connection->user->pasv_worker = NULL;
+			$connection->user->pasv_worker = null;
 		}
 		fclose($handle);
 		
@@ -557,7 +543,7 @@ class FTPCommand
 	 */
 	private function _stat($connection, $args)
 	{
-		$status = "FTP server status:" . PHP_EOL . "Version 1.0.0";
+		$status = 'FTP server status:' . PHP_EOL . 'Version 1.0.0';
 		
 		return new Output(211, $status);
 	}
@@ -647,7 +633,7 @@ class FTPCommand
 	private function _rnto($connection, $args)
 	{
 		rename($connection->user->need_rename, $connection->user->getRootPath($args));
-		$connection->user->need_rename = NULL;
+		$connection->user->need_rename = null;
 		
 		return new Output(250, 'ok');
 	}
@@ -661,31 +647,28 @@ class FTPCommand
 	 *
 	 * @return Output
 	 */
-	private function _stor($connection, $args, $upload_append = FALSE)
+	private function _stor($connection, $args, $upload_append = false)
 	{
 		$user = $connection->user;
 		
 		$connection->send(new Output(115, 'Opening data connection'));
 		
 		$filePath = $user->getRootPath($args);
-		if(!$upload_append)
+		if(!$upload_append && is_file($filePath))
 		{
-			if(is_file($filePath))
-			{
-				unlink($filePath);
-			}
+			unlink($filePath);
 		}
 		
-		if($user->mode == 'port')
+		if($user->mode === 'port')
 		{
 			$port_connection = $user->port_connection;
 			
-			$port_connection->onClose   = function($port_connection) use ($connection)
+			$port_connection->onClose   = static function($port_connection) use ($connection)
 			{
 				$port_connection->close();
-				$connection->user->port_connection = NULL;
+				$connection->user->port_connection = null;
 			};
-			$port_connection->onMessage = function($port_connection, $data) use ($filePath)
+			$port_connection->onMessage = static function($port_connection, $data) use ($filePath)
 			{
 				file_put_contents($filePath, $data, FILE_APPEND);
 			};
@@ -694,13 +677,13 @@ class FTPCommand
 		{
 			$pasv_connection = current($user->pasv_worker->connections);
 			
-			$pasv_connection->onClose   = function($pasv_connection) use ($connection)
+			$pasv_connection->onClose   = static function($pasv_connection) use ($connection)
 			{
 				$pasv_connection->close();
 				$connection->user->pasv_worker->unlisten();
-				$connection->user->pasv_worker = NULL;
+				$connection->user->pasv_worker = null;
 			};
-			$pasv_connection->onMessage = function($pasv_connection, $data) use ($filePath)
+			$pasv_connection->onMessage = static function($pasv_connection, $data) use ($filePath)
 			{
 				file_put_contents($filePath, $data, FILE_APPEND);
 			};
@@ -717,7 +700,7 @@ class FTPCommand
 	 */
 	private function _appe($connection, $args)
 	{
-		$this->_stor($connection, $args, TRUE);
+		$this->_stor($connection, $args, true);
 	}
 	
 	/**
@@ -730,18 +713,16 @@ class FTPCommand
 	 */
 	private function _type($connection, $args)
 	{
-		if($args == "I")
+		if($args === 'I')
 		{
-			$connection->user->isBinary = TRUE;
+			$connection->user->isBinary = true;
 			
 			return new Output(200, 'Type set to I(Binary)');
 		}
-		else
-		{
-			$connection->user->isBinary = FALSE;
-			
-			return new Output(200, 'Type set to A(ASCII)');
-		}
+		
+		$connection->user->isBinary = false;
+		
+		return new Output(200, 'Type set to A(ASCII)');
 	}
 	
 	/**
@@ -780,7 +761,7 @@ class FTPCommand
 	 */
 	private function _rest($connection, $args)
 	{
-		if($args != 0 and $args != 100)
+		if($args !== 0 && $args !== 100)
 		{
 			$connection->user->download_size = $args;
 		}

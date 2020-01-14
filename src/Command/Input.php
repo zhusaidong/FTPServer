@@ -22,11 +22,11 @@ class Input
 	 *
 	 * @param string $data ftp original  command
 	 */
-	public function __construct($data = NULL)
+	public function __construct($data = null)
 	{
-		if($data != NULL)
+		if($data !== null)
 		{
-			set_error_handler(function(){});
+			set_error_handler(static function(){});
 			@list($command, $parameter) = explode(' ', $data, 2);
 			restore_error_handler();
 			$this->command   = $command;

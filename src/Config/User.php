@@ -22,7 +22,7 @@ class User
 	public function __construct()
 	{
 		$users = $this->readJson('user.json');
-		if($users == NULL)
+		if($users === null)
 		{
 			Worker::safeEcho('user.json error:' . json_last_error_msg() . PHP_EOL);
 			exit;
@@ -44,10 +44,10 @@ class User
 	{
 		if(!file_exists($jsonFile))
 		{
-			return NULL;
+			return null;
 		}
 		
-		return json_decode(file_get_contents($jsonFile), TRUE);
+		return json_decode(file_get_contents($jsonFile), true);
 	}
 	
 	/**
@@ -59,6 +59,6 @@ class User
 	 */
 	public function getInfoByUserName($userName)
 	{
-		return isset($this->users[$userName]) ? $this->users[$userName] : NULL;
+		return isset($this->users[$userName]) ? $this->users[$userName] : null;
 	}
 }
