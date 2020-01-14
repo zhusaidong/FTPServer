@@ -29,7 +29,7 @@ class User
 		}
 		foreach($users as $user)
 		{
-			$this->users[$user['username']] = new UserObject($user);
+			$this->users[$user['username']] = $u = new UserObject($user);
 		}
 	}
 	
@@ -44,7 +44,7 @@ class User
 	{
 		if(!file_exists($jsonFile))
 		{
-			return null;
+			return [];
 		}
 		
 		return json_decode(file_get_contents($jsonFile), true);

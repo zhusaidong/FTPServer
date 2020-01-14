@@ -7,6 +7,7 @@
 namespace FTPServer;
 
 use Exception;
+use FTPServer\Util\Os;
 use FTPServer\Command\Input;
 use FTPServer\Command\Output;
 use FTPServer\Config\Server as ServerConfig;
@@ -19,7 +20,7 @@ use DirectoryIterator;
 class FTPCommand
 {
 	/**
-	 * @var mixed $serverConfig server config
+	 * @var ServerConfig $serverConfig server config
 	 */
 	private $serverConfig;
 	
@@ -45,7 +46,10 @@ class FTPCommand
 		if(method_exists($this, $method))
 		{
 			$param = $input->getParameter();
-			PHP_OS === 'WINNT' and $param = mb_convert_encoding($param, 'utf-8', 'gb2312');
+			if(Os::isWindows())
+			{
+				$param = mb_convert_encoding($param, 'utf-8', 'gb2312');
+			}
 			
 			return $this->$method($connection, $param);
 		}
@@ -71,7 +75,7 @@ class FTPCommand
 		{
 			if(!$iterator->isDot())
 			{
-				if(PHP_OS === 'WINNT')
+				if(Os::isWindows())
 				{
 					$ownerName = get_current_user();
 					$groupName = $ownerName;
@@ -427,7 +431,7 @@ class FTPCommand
 	 */
 	private function _pwd($connection, $args)
 	{
-		return new Output(257, '"' . $connection->user->getPath() . '" is current directory.');
+		return new Output(257, '"' . DIRECTORY_SEPARATOR . $connection->user->getPath() . '" is current directory.');
 	}
 	
 	/**

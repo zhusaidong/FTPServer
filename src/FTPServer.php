@@ -18,7 +18,7 @@ class FTPServer
 	 */
 	private $log;
 	/**
-	 * @var mixed $serverConfig server config
+	 * @var ServerConfig $serverConfig server config
 	 */
 	protected $serverConfig;
 	

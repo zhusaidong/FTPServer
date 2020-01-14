@@ -6,6 +6,8 @@
  */
 namespace FTPServer;
 
+use FTPServer\Util\Os;
+
 class User
 {
 	/**
@@ -43,22 +45,25 @@ class User
 	}
 	
 	/**
+	 * get os real path
+	 *
+	 * @param $path
+	 *
+	 * @return string|string[]
+	 */
+	private function getOsPath($path)
+	{
+		return str_replace(Os::isWindows() ? '/' : '\\', DIRECTORY_SEPARATOR, $path);
+	}
+	
+	/**
 	 * set relative path
 	 *
 	 * @param string $path relative path
 	 */
 	public function setPath($path)
 	{
-		$path = str_replace('\\', '/', $path);
-		if($path[0] !== '/')
-		{
-			$path = '/' . $path;
-		}
-		if(substr($path, -1) === '/')
-		{
-			$path = substr($path, 0, -1);
-		}
-		$this->path = $path;
+		$this->path = trim($this->getOsPath($path), DIRECTORY_SEPARATOR);
 	}
 	
 	/**
@@ -68,28 +73,26 @@ class User
 	 */
 	public function setRoot($root)
 	{
-		if(substr($root, -1) === '/')
+		$root = trim($this->getOsPath($root), DIRECTORY_SEPARATOR);
+		//windows dir like d:
+		if(strlen($root) > 1 && $root[1] === ':')
 		{
-			$root = substr($root, 0, -1);
+			$this->root = $root;
 		}
-		$this->root = $root;
+		else
+		{
+			$this->root = __DIR__ . DIRECTORY_SEPARATOR . $root;
+		}
 	}
 	
 	/**
 	 * get root path
 	 *
-	 * @param string $path
-	 *
 	 * @return string
 	 */
-	public function getRoot($path = '')
+	public function getRoot()
 	{
-		if($path !== '' && $path[0] !== '/')
-		{
-			$path = '/' . $path;
-		}
-		
-		return $this->root . $path;
+		return $this->root;
 	}
 	
 	/**
@@ -101,12 +104,7 @@ class User
 	 */
 	public function getPath($path = '')
 	{
-		if($path !== '' && $path[0] !== '/')
-		{
-			$path = '/' . $path;
-		}
-		
-		return ($this->path . $path) ? : '/';
+		return trim($this->path . DIRECTORY_SEPARATOR . trim($path, DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR);
 	}
 	
 	/**
@@ -118,15 +116,6 @@ class User
 	 */
 	public function getRootPath($path = '')
 	{
-		if($path !== '' && $path[0] !== '/')
-		{
-			$path = '/' . $path;
-		}
-		if($this->path === '/')
-		{
-			$this->path = '';
-		}
-		
-		return $this->root . $this->path . $path;
+		return rtrim($this->getRoot() . DIRECTORY_SEPARATOR . $this->getPath($path), DIRECTORY_SEPARATOR);
 	}
 }
