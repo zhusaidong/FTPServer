@@ -29,7 +29,7 @@ class User
 		}
 		foreach($users as $user)
 		{
-			$this->users[$user['username']] = $u = new UserObject($user);
+			$this->users[$user['username']] = new UserObject($user);
 		}
 	}
 	
